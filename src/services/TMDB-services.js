@@ -15,7 +15,6 @@ export default class TMDBService {
   async getMovies() {
     const url = `${this._apiBase}&query='return'`;
     const response = await this.getResource(url);
-    console.log(response);
     return response;
   }
 
