@@ -3,13 +3,18 @@ import { Tag, Rate } from 'antd';
 import { format } from 'date-fns';
 
 import './movie-list-item.css';
+import plug from './plug.png';
 
 export default class MovieListItem extends Component {
   setDate(date) {
-    return format(new Date(date), 'MMMM dd, yyyy');
+    try {
+      return format(new Date(date), 'MMMM dd, yyyy');
+    } catch (e) {
+      return '-';
+    }
   }
 
-  cutDescription(text, limit = 100) {
+  cutDescription(text, limit = 75) {
     text = text.trim();
     if (text.length <= limit) {
       return text;
@@ -32,12 +37,13 @@ export default class MovieListItem extends Component {
 
   render() {
     const { title, overview, vote_average, release_date, backdrop_path, genre_ids, genres } = this.props;
+    const plugMovies = <img src={plug} alt="poster" />;
+    const imgMovies = <img src={`https://image.tmdb.org/t/p/original${backdrop_path}`} alt="poster" />;
+    const poster = backdrop_path === null ? plugMovies : imgMovies;
 
     return (
       <li className="movie-card">
-        <div className="movie-card__poster">
-          <img src={`https://image.tmdb.org/t/p/original${backdrop_path}`} alt="poster" />
-        </div>
+        <div className="movie-card__poster">{poster}</div>
         <div className="movie-card__content">
           <div className="movie-card__header">
             <h1 className="movie-card__title">{title}</h1>

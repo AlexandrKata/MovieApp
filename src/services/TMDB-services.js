@@ -4,16 +4,20 @@ export default class TMDBService {
   _apiGenres = `https://api.themoviedb.org/3/genre/movie/list?${this._apiKey}`;
 
   async getResource(url) {
-    const response = await fetch(url, { method: 'GET', headers: { accept: 'application/json' } });
+    try {
+      const response = await fetch(url, { method: 'GET', headers: { accept: 'application/json' } });
 
-    if (!response.ok) {
-      throw new Error(`Could not fetch ${url}, received ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`Could not fetch ${url}, received ${response.status}`);
+      }
+      return await response.json();
+    } catch (e) {
+      return e;
     }
-    return await response.json();
   }
 
-  async getMovies() {
-    const url = `${this._apiBase}&query='return'`;
+  async getMovies(query = 'return', page = 1) {
+    const url = `${this._apiBase}&query='${query}'&page=${page}`;
     const response = await this.getResource(url);
     return response;
   }
