@@ -1,7 +1,6 @@
 .movies-list li{
     display: flex;
     justify-content: space-between;
-    gap: 20px;
 }
 
 .movie-card {
@@ -23,8 +22,8 @@
 }
 
 .movie-card__content {
-    width: 239px;
-    padding: 10px;
+    width: 268px;
+    padding: 15px;
     position: relative;
 }
 
@@ -45,7 +44,7 @@
 
 .movie-card__rating {
     font-size: 12px;
-    border: 2px solid rgba(233, 209, 0, 1);
+    border: 2px solid ;
     border-radius: 50%;
     padding: 5px;
 }
@@ -75,6 +74,9 @@
 
 .movie-card__stars {
     margin-top: 10px;
-    position: absolute;
     bottom: 10px;
+}
+
+.ant-rate {
+    font-size: 15px;
 }

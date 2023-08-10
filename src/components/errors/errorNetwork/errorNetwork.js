@@ -1,17 +1,17 @@
 import { Component } from 'react';
 import { Alert } from 'antd';
-import './error-server.css';
+import './errorNetwork.css';
 
-export default class ErrorServer extends Component {
+export default class ErrorNetwork extends Component {
   render() {
     return (
       <div className="error-network">
         <Alert
           banner={true}
           type="info"
-          message="What's happened?"
+          message="Network Error"
           description="
-          You have landed on a page that does not exist"
+          server is temporarily unavailable"
         />
       </div>
     );

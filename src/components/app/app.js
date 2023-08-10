@@ -1,13 +1,13 @@
 import { Component } from 'react';
-import { Offline, Online } from 'react-detect-offline';
 import { Tabs, Pagination } from 'antd';
 
-import MoviesList from '../movie-list';
-import SearchForm from '../search-form';
+import SearchTab from '../searchTab';
+import RatedTab from '../ratedTab';
+import SearchForm from '../searchForm';
 import Spinner from '../spinner';
-import ErrorNetwork from '../errors/error-network';
-import ErrorFetch from '../errors/error-fetch';
-import TMDBService from '../../services/TMDB-services';
+import ErrorNetwork from '../errors/errorNetwork';
+import TMDBService from '../../services/TMDBServices';
+import Context from '../../context';
 
 import 'antd/dist/reset.css';
 import './app.css';
@@ -15,60 +15,67 @@ import './app.css';
 export default class App extends Component {
   state = {
     moviesList: [],
-    searchMoviesList: [],
+    ratedList: [],
     genres: [],
-    totalPages: 0,
-    page: 0,
+    query: null,
     loading: true,
     error: false,
-    query: null,
-    id: null,
-    fetch: true,
+    totalPages: null,
+    page: null,
+    totalResult: null,
+    key: 'search',
   };
 
+  TMDBService = new TMDBService();
+
   componentDidMount() {
-    this.setMovie();
+    this.TMDBService.getGuestSession();
+    this.setSearchMovie();
     this.setGenres();
   }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.id !== prevProps.id) {
-      this.setMovie();
-    }
-  }
-
-  TMDBService = new TMDBService();
 
   onError = () => {
     this.setState({ error: true, loading: false });
   };
 
-  setMovie(query, page) {
+  setSearchMovie(query, page) {
     this.TMDBService.getMovies(query, page)
       .then((item) => {
-        if (item instanceof TypeError) {
-          this.setState({ fetch: false, loading: false });
+        if (item.name == 'TypeError') {
+          this.setState({ error: true, loading: false });
         }
-        if (item.results.length === 0) {
-          this.setState({ moviesList: [], loading: false, query: query });
-        } else {
-          this.setState({
-            moviesList: item.results,
-            totalPages: item.total_pages,
-            page: item.page,
-            loading: false,
-            id: item.results[0].id,
-            query: query,
-            fetch: true,
-          });
-        }
+        this.setState({
+          moviesList: item.results,
+          totalPages: item.total_pages,
+          page: item.page,
+          loading: false,
+          totalResult: item.total_results,
+          query: query,
+          id: item.results.id,
+        });
       })
       .catch(this.onError);
   }
 
+  setRatedMovies = (page) => {
+    this.TMDBService.getRatedMovie(page)
+      .then((item) => {
+        this.setState({
+          ratedList: item.results,
+          totalPages: item.total_pages,
+          page: item.page,
+          loading: false,
+        });
+      })
+      .catch(this.onError);
+  };
+
   setGenres() {
     this.TMDBService.getGenres()
       .then((item) => {
+        if (item.name == 'TypeError') {
+          this.setState({ error: true, loading: false });
+        }
         this.setState({
           genres: item,
         });
@@ -80,61 +87,88 @@ export default class App extends Component {
     this.setState({
       loading: true,
     });
-    this.setMovie(value);
+    this.setSearchMovie(value);
   };
 
   onChangePage = (page) => {
+    const { query, key } = this.state;
     this.setState({
       loading: true,
     });
-    this.setMovie(this.state.query, page);
+    if (key == 'search') {
+      this.setSearchMovie(query, page);
+    }
+    if (key == 'rated') {
+      this.setRatedMovies(page);
+    }
+  };
+
+  onClickTabs = (key, event) => {
+    const { query } = this.state;
+    this.setState({ key: key, event: event });
+    if (key == 'search') {
+      this.setSearchMovie(query);
+    }
+    if (key == 'rated') {
+      this.setState({ loading: true });
+      this.setRatedMovies();
+    }
   };
 
   render() {
-    const { moviesList, genres, totalPages, page, loading, error, fetch } = this.state;
+    const { moviesList, ratedList, genres, totalPages, page, loading, error, key, totalResult } = this.state;
 
     const hasDate = !(loading || error);
-    const moviesListLength = moviesList.length === 0;
     const spinner = loading ? <Spinner /> : null;
-    const content = hasDate ? <MoviesList moviesList={moviesList} genres={genres} /> : null;
-    const pagination =
-      hasDate && !moviesListLength ? (
-        <Pagination
-          total={totalPages}
-          current={page}
-          showSizeChanger={false}
-          defaultPageSize="1"
-          onChange={(e) => this.onChangePage(e)}
-        />
-      ) : null;
-    const searchMessage = moviesListLength ? <div>No results found for your search: {this.state.query}</div> : null;
+    const contentSearchTab = hasDate ? <SearchTab /> : null;
+    const contentRatedTab = hasDate ? <RatedTab /> : null;
+    const pagination = hasDate ? (
+      <Pagination
+        total={totalPages}
+        current={page}
+        showSizeChanger={false}
+        defaultPageSize="1"
+        hideOnSinglePage={true}
+        onChange={this.onChangePage}
+      />
+    ) : null;
+    const messageNothingFound =
+      !totalResult && !error && !spinner ? <div>Nothing found for your request: {this.state.query}</div> : null;
+    const messageNetworkProblem = error ? <ErrorNetwork /> : null;
     const items = [
       {
-        key: 1,
+        key: 'search',
         label: 'Search',
         children: (
           <>
             <SearchForm onSearchMovies={this.onSearchMovies} />
-            {searchMessage}
-            {content}
+            {spinner}
+            {messageNetworkProblem}
+            {messageNothingFound}
+            {contentSearchTab}
             {pagination}
           </>
         ),
       },
-      { key: 2, label: 'Rated' },
+      {
+        key: 'rated',
+        label: 'Rated',
+        children: (
+          <>
+            {spinner}
+            {contentRatedTab}
+            {pagination}
+          </>
+        ),
+      },
     ];
-    const tabs = fetch && spinner === null ? <Tabs defaultActiveKey="1" centered items={items}></Tabs> : null;
-    const errorFetch = !fetch ? <ErrorFetch /> : null;
-    const errorNetwork = Offline ? <ErrorNetwork /> : null;
 
     return (
-      <div className="app">
-        {errorFetch}
-        {spinner}
-        <Online>{tabs}</Online>
-
-        <Offline>{errorNetwork}</Offline>
-      </div>
+      <Context.Provider value={{ moviesList: moviesList, genres: genres, ratedList: ratedList }}>
+        <div className="app">
+          <Tabs defaultActiveKey={key} centered items={items} onTabClick={this.onClickTabs}></Tabs>
+        </div>
+      </Context.Provider>
     );
   }
 }
