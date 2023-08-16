@@ -1,2 +1,2 @@
-import SearchTab from './searchTab';
-export default SearchTab;
+import { SearchTab } from './searchTab';
+export { SearchTab };

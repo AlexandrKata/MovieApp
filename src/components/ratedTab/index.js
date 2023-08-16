@@ -1,2 +1,2 @@
-import RatedTab from './ratedTab';
-export default RatedTab;
+import { RatedTab } from './ratedTab';
+export { RatedTab };

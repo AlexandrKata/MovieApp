@@ -1,1 +1,1 @@
-https://movies-app-seven-psi.vercel.app/
+https://movies-app-beta-beryl.vercel.app/

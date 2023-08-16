@@ -1,8 +1,4 @@
-export default class TMDBService {
-  state = {
-    guestSessionId: null,
-  };
-
+export default class tmbd {
   _apiKey = 'api_key=b36e9de452fb21ebfa2b4fe71caa7c84';
   _apiBase = 'https://api.themoviedb.org/3/';
   _apiSearch = `${this._apiBase}search/movie?${this._apiKey}`;
@@ -27,7 +23,6 @@ export default class TMDBService {
       const guestSessionId = item.guest_session_id;
       localStorage.setItem('guestSessionId', guestSessionId);
     });
-
     return response;
   }
 
