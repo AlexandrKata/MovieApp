@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Tag, Rate } from 'antd';
 import { format } from 'date-fns';
+import propTypes from 'prop-types';
 
 import { Context } from '../../context';
 
@@ -73,4 +74,20 @@ export const MovieCard = ({ movie }) => {
       </div>
     </li>
   );
+};
+
+MovieCard.propTypes = {
+  movie: propTypes.shape({
+    poster_path: propTypes.string,
+    title: propTypes.string,
+    vote_average: propTypes.number,
+    genre_ids: propTypes.array,
+    overview: propTypes.string,
+  }),
+  genre: propTypes.array,
+  tmbdServices: propTypes.func,
+};
+
+MovieCard.defaultProps = {
+  movie: {},
 };

@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react';
+import propTypes from 'prop-types';
 import { debounce } from 'lodash';
 
 import { Context } from '../../context';
@@ -57,4 +58,30 @@ export const SearchTab = ({
       />
     );
   }
+};
+
+SearchTab.propTypes = {
+  page: propTypes.number,
+  setTotalPages: propTypes.func,
+  ratedList: propTypes.array,
+  setMovies: propTypes.func,
+  query: propTypes.string,
+  setQuery: propTypes.func,
+  activeKey: propTypes.string,
+  setRatedList: propTypes.func,
+  setLoading: propTypes.func,
+  setError: propTypes.func,
+};
+
+SearchTab.defaultProps = {
+  page: 1,
+  setTotalPages: () => {},
+  ratedList: [],
+  setMovies: () => {},
+  query: '',
+  setQuery: () => {},
+  activeKey: '',
+  setRatedList: () => {},
+  setLoading: () => {},
+  setError: () => {},
 };

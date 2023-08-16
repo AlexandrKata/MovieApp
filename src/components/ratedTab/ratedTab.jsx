@@ -1,4 +1,5 @@
 import { useEffect, useContext } from 'react';
+import propTypes from 'prop-types';
 
 import { Context } from '../../context';
 
@@ -24,4 +25,24 @@ export const RatedTab = ({ page, setTotalPages, setMovies, activeKey, setRatedLi
       getRatedMovies(page);
     }, [page]);
   }
+};
+
+RatedTab.propTypes = {
+  page: propTypes.number,
+  setTotalPages: propTypes.func,
+  setMovies: propTypes.func,
+  activeKey: propTypes.string,
+  setRatedList: propTypes.func,
+  setLoading: propTypes.func,
+  setError: propTypes.func,
+};
+
+RatedTab.defaultProps = {
+  page: 1,
+  setTotalPages: () => {},
+  setMovies: () => {},
+  activeKey: '',
+  setRatedList: () => {},
+  setLoading: () => {},
+  setError: () => {},
 };
